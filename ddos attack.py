@@ -9,10 +9,10 @@ def send_packets(num_packets, num_ips, attack=False):
     if attack:
         # During an attack, most traffic comes from a few IPs
         attack_ips = random.sample(ip_addresses, k=max(1, num_ips // 10))
-        traffic = [random.choice(attack_ips) for _ in range(num_packets)]
+        traffic = random.choices(attack_ips, k=num_packets)
     else:
         # Normal traffic has a more even distribution
-        traffic = [random.choice(ip_addresses) for _ in range(num_packets)]
+        traffic = random.choices(ip_addresses, k=num_packets)
     
     return traffic
 
@@ -21,54 +21,42 @@ def compute_entropy(traffic):
     total_packets = len(traffic)
     ip_count = Counter(traffic)
     
-    entropy = 0
-    for count in ip_count.values():
-        probability = count / total_packets
-        entropy -= probability * math.log2(probability)
+    entropy = -sum((count / total_packets) * math.log2(count / total_packets) for count in ip_count.values())
     
     return entropy
 
-# Simulate traffic
+# Function to classify traffic based on entropy
+def detect_ddos(traffic, threshold_entropy):
+    entropy = compute_entropy(traffic)
+    return "DDoS Attack Detected" if entropy < threshold_entropy else "Normal Traffic"
+
+# Function to find detection accuracy
+def find_accuracy(num_tests, num_packets, num_ips, threshold_entropy):
+    correct_detections = sum(
+        detect_ddos(send_packets(num_packets, num_ips, attack), threshold_entropy) == ("DDoS Attack Detected" if attack else "Normal Traffic")
+        for attack in [False, True] for _ in range(num_tests)
+    )
+    
+    return correct_detections / (2 * num_tests)
+
+# Parameters
 num_packets = 10000  # Number of packets sent
-num_ips = 100  # Number of different IP addresses
+num_ips = 100        # Number of different IP addresses
+num_tests = 100      # Number of tests to calculate accuracy
 
-# Normal traffic
+# Simulate normal and attack traffic
 normal_traffic = send_packets(num_packets, num_ips, attack=False)
-normal_entropy = compute_entropy(normal_traffic)
-
-# Attack traffic
 attack_traffic = send_packets(num_packets, num_ips, attack=True)
+
+# Compute entropy for normal and attack scenarios
+normal_entropy = compute_entropy(normal_traffic)
 attack_entropy = compute_entropy(attack_traffic)
 
-# Setting a threshold for detecting attack
+# Set a threshold for detecting attacks
 threshold_entropy = (normal_entropy + attack_entropy) / 2
 
-# Function to classify traffic
-def detect_ddos(traffic):
-    entropy = compute_entropy(traffic)
-    if entropy < threshold_entropy:
-        return "DDoS Attack Detected"
-    else:
-        return "Normal Traffic"
-
-# Find accuracy
-def find_accuracy(num_tests=100):
-    correct_detections = 0
-
-    for _ in range(num_tests):
-        traffic = send_packets(num_packets, num_ips, attack=False)
-        if detect_ddos(traffic) == "Normal Traffic":
-            correct_detections += 1
-        
-        traffic = send_packets(num_packets, num_ips, attack=True)
-        if detect_ddos(traffic) == "DDoS Attack Detected":
-            correct_detections += 1
-
-    accuracy = correct_detections / (2 * num_tests)
-    return accuracy
-
 # Display results
-print(f"Normal Entropy: {normal_entropy}")
-print(f"Attack Entropy: {attack_entropy}")
-print(f"Threshold Entropy: {threshold_entropy}")
-print(f"Detection Accuracy: {find_accuracy() * 100:.2f}%")
+print(f"Normal Entropy: {normal_entropy:.4f}")
+print(f"Attack Entropy: {attack_entropy:.4f}")
+print(f"Threshold Entropy: {threshold_entropy:.4f}")
+print(f"Detection Accuracy: {find_accuracy(num_tests, num_packets, num_ips, threshold_entropy) * 100:.2f}%")
