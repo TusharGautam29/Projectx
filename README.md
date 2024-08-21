@@ -1,15 +1,15 @@
 DDoS Attack Detection Using Entropy-Based Analysis
 Introduction
-Distributed Denial of Service (DDoS) attacks pose a significant threat to online services by overwhelming servers with massive amounts of traffic, often making them inaccessible to legitimate users. Detecting such attacks quickly and accurately is crucial for mitigating their impact. This repository provides a Python implementation of a method to detect DDoS attacks using entropy-based analysis of network traffic.
+Distributed Denial of Service (DDoS) attacks are a serious threat to online services, where servers are overwhelmed with excessive traffic, often rendering them inaccessible to legitimate users. This project presents a Python-based method to detect DDoS attacks using entropy-based analysis of network traffic.
 
 Methodology
-This detection method uses entropy, a measure from information theory, to quantify the randomness in the distribution of IP addresses from which data packets originate. The key idea is that normal traffic has a more uniform distribution of IP addresses, resulting in higher entropy, while DDoS traffic, concentrated from a few IP sources, has lower entropy.
+The detection method leverages entropy, a concept from information theory that quantifies the randomness in a dataset. In this context, entropy is used to measure the distribution of IP addresses from which data packets originate.
 
-Steps of the Approach
+Steps Involved
 Simulating Network Traffic:
 
-Normal Traffic: Simulated by generating data packets from a wide range of IP addresses, leading to a higher entropy.
-Attack Traffic: Simulated by concentrating data packets from a small subset of IP addresses, leading to lower entropy.
+Normal Traffic: Generated from a wide range of IP addresses, resulting in higher entropy.
+Attack Traffic: Simulated by concentrating traffic from a smaller set of IP addresses, resulting in lower entropy.
 Entropy Calculation:
 
 Entropy is calculated using the Shannon entropy formula:
@@ -19,17 +19,17 @@ H = -sum(p(i) * math.log2(p(i)) for p(i) in traffic_distribution)
 where p(i) is the probability of packets originating from IP address i.
 Threshold Setting:
 
-The threshold entropy is determined by averaging the entropy values from normal and attack traffic simulations. Traffic with entropy below this threshold is classified as a potential DDoS attack.
+A threshold entropy value is determined by averaging the entropy values from normal and attack traffic. This threshold is used to classify incoming traffic.
 Detection and Accuracy Measurement:
 
-The method classifies traffic by comparing its entropy to the threshold. Accuracy is evaluated by simulating multiple instances of normal and attack traffic.
+The system classifies traffic as normal or a potential DDoS attack based on whether its entropy is above or below the threshold. Accuracy is evaluated by simulating multiple test cases.
 Implementation
-The implementation consists of several Python functions:
+The implementation is divided into several key functions:
 
-send_packets(num_packets, num_ips, attack=False): Simulates network traffic by generating a list of IP addresses.
-compute_entropy(traffic): Computes the entropy of the traffic data.
-detect_ddos(traffic, threshold_entropy): Classifies traffic as normal or a DDoS attack.
-find_accuracy(num_tests, num_packets, num_ips, threshold_entropy, verbose=False): Calculates the detection accuracy across multiple test cases.
+send_packets(num_packets, num_ips, attack=False): Simulates network traffic with either a uniform or concentrated distribution of IP addresses.
+compute_entropy(traffic): Calculates the entropy of the given traffic data.
+detect_ddos(traffic, threshold_entropy): Classifies the traffic based on its entropy.
+find_accuracy(num_tests, num_packets, num_ips, threshold_entropy, verbose=False): Evaluates the detection accuracy by running multiple test scenarios.
 Example Usage
 python
 Copy code
@@ -41,7 +41,8 @@ num_tests = 100
 # Run DDoS detection simulation
 run_ddos_detection(num_packets=num_packets, num_ips=num_ips, num_tests=num_tests, verbose=True)
 Results
-The entropy-based method effectively distinguishes between normal and DDoS attack traffic. Normal traffic typically shows higher entropy due to the diverse distribution of IP addresses, while DDoS traffic shows lower entropy due to its concentration from a limited number of IP sources. The detection method was found to be accurate in classifying traffic under various test conditions.
+The entropy-based method successfully distinguishes between normal and DDoS attack traffic. Normal traffic typically exhibits higher entropy due to the diverse distribution of IP addresses, while DDoS attack traffic shows lower entropy due to its concentration from a few IP sources.
 
 Conclusion
-This entropy-based approach to DDoS detection provides a reliable and efficient method for identifying abnormal traffic patterns. By analyzing the diversity of IP addresses in network traffic, this method can detect potential DDoS attacks with high accuracy. Future improvements could include integrating this approach with real-time monitoring systems and exploring machine learning techniques to further enhance detection capabilities.
+This entropy-based approach provides an effective method for detecting DDoS attacks by analyzing the diversity of IP addresses in network traffic. Future work may involve integrating this technique with real-time monitoring systems and exploring machine learning methods to enhance detection accuracy further.
+
